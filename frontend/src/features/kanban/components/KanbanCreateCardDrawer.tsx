@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { X, BookOpen, Tag, Calendar, Columns3, AlignLeft, Target } from 'lucide-react'
+import { X, BookOpen, Tag, Calendar, Columns3, AlignLeft, Target, Plus, Check, Loader2 } from 'lucide-react'
 import {
   Drawer,
   DrawerContent,
@@ -10,7 +10,10 @@ import {
 } from '@/components/ui/drawer'
 import { Button } from '@/components/ui/button'
 import { useKanbanColumns, useCreateCard } from '@/services/kanban'
-import { useSubjects, useTopics, useObjectives } from '@/services/subjects'
+import {
+  useSubjects, useTopics, useObjectives,
+  useCreateSubject, useCreateTopic, useCreateObjective,
+} from '@/services/subjects'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -23,12 +26,60 @@ interface Props {
 const fieldBase =
   'w-full bg-transparent text-sm text-foreground border-b border-border/40 pb-1.5 pt-0.5 outline-none focus:border-primary/50 transition-colors placeholder:text-muted-foreground/40 [color-scheme:dark]'
 
-function FieldRow({ label, icon, children }: { label: string; icon: React.ReactNode; children: React.ReactNode }) {
+function InlineCreate({ placeholder, onConfirm, onCancel, isPending }: {
+  placeholder: string
+  onConfirm: (value: string) => void
+  onCancel: () => void
+  isPending: boolean
+}) {
+  const [value, setValue] = useState('')
+  return (
+    <div className="flex items-center gap-1.5 mt-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
+      <input
+        value={value}
+        onChange={e => setValue(e.target.value)}
+        placeholder={placeholder}
+        autoFocus
+        onKeyDown={e => {
+          if (e.key === 'Enter' && value.trim()) onConfirm(value.trim())
+          if (e.key === 'Escape') onCancel()
+        }}
+        className="flex-1 bg-transparent text-xs text-foreground border-b border-primary/40 pb-1 outline-none placeholder:text-muted-foreground/40"
+      />
+      <button
+        onClick={() => value.trim() && onConfirm(value.trim())}
+        disabled={!value.trim() || isPending}
+        className="text-primary/70 hover:text-primary disabled:opacity-30 transition-colors"
+      >
+        {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+      </button>
+      <button onClick={onCancel} className="text-muted-foreground/50 hover:text-foreground transition-colors">
+        <X className="h-3 w-3" />
+      </button>
+    </div>
+  )
+}
+
+function FieldRow({ label, icon, onAdd, children }: {
+  label: string
+  icon: React.ReactNode
+  onAdd?: () => void
+  children: React.ReactNode
+}) {
   return (
     <div className="space-y-1.5">
       <div className="flex items-center gap-1.5 text-muted-foreground/60">
         {icon}
         <span className="text-xs font-semibold uppercase tracking-wider">{label}</span>
+        {onAdd && (
+          <button
+            onClick={onAdd}
+            className="ml-auto text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+            title={`Criar novo ${label.toLowerCase()}`}
+          >
+            <Plus className="h-3 w-3" />
+          </button>
+        )}
       </div>
       {children}
     </div>
@@ -47,9 +98,16 @@ export function KanbanCreateCardDrawer({ open, columnId, onClose, onExited }: Pr
   const [scheduledFor, setScheduledFor] = useState('')
   const [targetColumnId, setTargetColumnId] = useState(columnId)
 
+  const [creatingSubject, setCreatingSubject] = useState(false)
+  const [creatingTopic, setCreatingTopic] = useState(false)
+  const [creatingObjective, setCreatingObjective] = useState(false)
+
   const { data: topics = [] } = useTopics(subjectId ?? 0)
   const { data: objectives = [] } = useObjectives(subjectId ?? 0)
   const createCard = useCreateCard()
+  const createSubject = useCreateSubject()
+  const createTopic = useCreateTopic()
+  const createObjective = useCreateObjective()
 
   const titleIsValid = title.trim().length > 0 && title.trim().length <= 255
   const accentColor = subjects.find(s => s.id === subjectId)?.color ?? 'oklch(0.556 0 0)'
@@ -58,6 +116,8 @@ export function KanbanCreateCardDrawer({ open, columnId, onClose, onExited }: Pr
     setSubjectId(val ? Number(val) : null)
     setTopicId(null)
     setObjectiveId(null)
+    setCreatingTopic(false)
+    setCreatingObjective(false)
   }
 
   function reset() {
@@ -68,6 +128,41 @@ export function KanbanCreateCardDrawer({ open, columnId, onClose, onExited }: Pr
     setObjectiveId(null)
     setScheduledFor('')
     setTargetColumnId(columnId)
+    setCreatingSubject(false)
+    setCreatingTopic(false)
+    setCreatingObjective(false)
+  }
+
+  async function handleCreateSubject(name: string) {
+    try {
+      const subject = await createSubject.mutateAsync({ name })
+      setSubjectId(subject.id)
+      setCreatingSubject(false)
+    } catch {
+      toast.error('Erro ao criar matéria')
+    }
+  }
+
+  async function handleCreateTopic(name: string) {
+    if (!subjectId) return
+    try {
+      const topic = await createTopic.mutateAsync({ subjectId, name })
+      setTopicId(topic.id)
+      setCreatingTopic(false)
+    } catch {
+      toast.error('Erro ao criar tópico')
+    }
+  }
+
+  async function handleCreateObjective(title: string) {
+    if (!subjectId) return
+    try {
+      const objective = await createObjective.mutateAsync({ subjectId, title })
+      setObjectiveId(objective.id)
+      setCreatingObjective(false)
+    } catch {
+      toast.error('Erro ao criar objetivo')
+    }
   }
 
   async function handleCreate() {
@@ -120,14 +215,31 @@ export function KanbanCreateCardDrawer({ open, columnId, onClose, onExited }: Pr
         </DrawerHeader>
 
         <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6">
-          <FieldRow label="Matéria" icon={<BookOpen className="h-3.5 w-3.5" />}>
+
+          <FieldRow
+            label="Matéria"
+            icon={<BookOpen className="h-3.5 w-3.5" />}
+            onAdd={() => { setCreatingSubject(v => !v) }}
+          >
             <select value={subjectId ?? ''} onChange={e => handleSubjectChange(e.target.value)} className={fieldBase}>
               <option value="">Nenhuma</option>
               {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
+            {creatingSubject && (
+              <InlineCreate
+                placeholder="Nome da matéria"
+                onConfirm={handleCreateSubject}
+                onCancel={() => setCreatingSubject(false)}
+                isPending={createSubject.isPending}
+              />
+            )}
           </FieldRow>
 
-          <FieldRow label="Objetivo" icon={<Target className="h-3.5 w-3.5" />}>
+          <FieldRow
+            label="Objetivo"
+            icon={<Target className="h-3.5 w-3.5" />}
+            onAdd={subjectId ? () => setCreatingObjective(v => !v) : undefined}
+          >
             <select
               value={objectiveId ?? ''}
               onChange={e => setObjectiveId(e.target.value ? Number(e.target.value) : null)}
@@ -140,9 +252,21 @@ export function KanbanCreateCardDrawer({ open, columnId, onClose, onExited }: Pr
             {!subjectId && (
               <p className="text-xs text-muted-foreground/40 mt-0.5">Selecione uma matéria primeiro</p>
             )}
+            {creatingObjective && subjectId && (
+              <InlineCreate
+                placeholder="Título do objetivo"
+                onConfirm={handleCreateObjective}
+                onCancel={() => setCreatingObjective(false)}
+                isPending={createObjective.isPending}
+              />
+            )}
           </FieldRow>
 
-          <FieldRow label="Tópico" icon={<Tag className="h-3.5 w-3.5" />}>
+          <FieldRow
+            label="Tópico"
+            icon={<Tag className="h-3.5 w-3.5" />}
+            onAdd={subjectId ? () => setCreatingTopic(v => !v) : undefined}
+          >
             <select
               value={topicId ?? ''}
               onChange={e => setTopicId(e.target.value ? Number(e.target.value) : null)}
@@ -152,6 +276,14 @@ export function KanbanCreateCardDrawer({ open, columnId, onClose, onExited }: Pr
               <option value="">Nenhum</option>
               {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
             </select>
+            {creatingTopic && subjectId && (
+              <InlineCreate
+                placeholder="Nome do tópico"
+                onConfirm={handleCreateTopic}
+                onCancel={() => setCreatingTopic(false)}
+                isPending={createTopic.isPending}
+              />
+            )}
           </FieldRow>
 
           <FieldRow label="Agendar para" icon={<Calendar className="h-3.5 w-3.5" />}>

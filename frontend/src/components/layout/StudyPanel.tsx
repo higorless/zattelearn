@@ -62,6 +62,8 @@ export function StudyPanel() {
   const [cardIndex, setCardIndex] = useState(0)
   const [isFinishing, setIsFinishing] = useState(false)
   const [noteContent, setNoteContent] = useState('')
+  const [noteTags, setNoteTags] = useState<string[]>([])
+  const [tagInput, setTagInput] = useState('')
   const [recoveryDismissed, setRecoveryDismissed] = useState<number | null>(null)
 
   // Tick the active session every second
@@ -119,6 +121,10 @@ export function StudyPanel() {
     if (!active) return
     dispatch(pauseSession())
     setIsFinishing(true)
+    const suggested: string[] = []
+    if (activeCard?.subject?.name) suggested.push(activeCard.subject.name)
+    if (activeCard?.topic?.name) suggested.push(activeCard.topic.name)
+    setNoteTags(suggested)
   }
 
   async function handleQuickEnd() {
@@ -173,7 +179,7 @@ export function StudyPanel() {
           sessionId,
           title: cardTitle,
           content: noteContent.trim(),
-          tags: cardSubject ? [cardSubject.name] : [],
+          tags: noteTags,
         })
         toast.success('Sessão finalizada · nota salva no Zettelkasten')
       } catch {
@@ -185,6 +191,8 @@ export function StudyPanel() {
 
     setIsFinishing(false)
     setNoteContent('')
+    setNoteTags([])
+    setTagInput('')
   }
 
   function handleRecoverSession() {
@@ -389,7 +397,7 @@ export function StudyPanel() {
                 </p>
               </div>
 
-              <div className="flex-1 px-4 py-4 flex flex-col gap-3 min-h-0">
+              <div className="flex-1 px-4 py-4 flex flex-col gap-3 min-h-0 overflow-y-auto">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
                     Anotação rápida
@@ -399,8 +407,48 @@ export function StudyPanel() {
                     onChange={e => setNoteContent(e.target.value)}
                     placeholder="O que você aprendeu? (opcional)"
                     autoFocus
-                    rows={6}
+                    rows={4}
                     className="w-full bg-muted/20 border border-border/40 p-2.5 text-xs leading-relaxed resize-none outline-none focus:border-border/70 transition-colors placeholder:text-muted-foreground/35 font-body"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+                    Tags
+                  </label>
+                  {noteTags.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {noteTags.map(tag => (
+                        <span key={tag} className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 bg-muted/40 border border-border/40 text-muted-foreground/70">
+                          {tag}
+                          <button
+                            onClick={() => setNoteTags(t => t.filter(x => x !== tag))}
+                            className="text-muted-foreground/40 hover:text-foreground transition-colors"
+                          >
+                            <X className="h-2.5 w-2.5" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <input
+                    value={tagInput}
+                    onChange={e => setTagInput(e.target.value)}
+                    onKeyDown={e => {
+                      if ((e.key === 'Enter' || e.key === ',') && tagInput.trim()) {
+                        e.preventDefault()
+                        const newTag = tagInput.trim().replace(/,$/, '')
+                        if (newTag && !noteTags.includes(newTag)) {
+                          setNoteTags(t => [...t, newTag])
+                        }
+                        setTagInput('')
+                      }
+                      if (e.key === 'Backspace' && !tagInput && noteTags.length > 0) {
+                        setNoteTags(t => t.slice(0, -1))
+                      }
+                    }}
+                    placeholder={noteTags.length === 0 ? 'Adicionar tag… (Enter ou vírgula)' : 'Nova tag…'}
+                    className="w-full bg-transparent text-[11px] text-foreground border-b border-border/30 pb-1 outline-none placeholder:text-muted-foreground/35 focus:border-border/60 transition-colors"
                   />
                 </div>
 

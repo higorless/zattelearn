@@ -35,8 +35,26 @@ export function useObjectives(subjectId: number) {
 export function useCreateSubject() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (data: Partial<Subject>) => api.post('/subjects', data).then(r => r.data),
+    mutationFn: (data: Partial<Subject>) => api.post<Subject>('/subjects', data).then(r => r.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.subjects }),
+  })
+}
+
+export function useCreateTopic() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: { subjectId: number; name: string }) =>
+      api.post<Topic>('/topics', data).then(r => r.data),
+    onSuccess: (_, vars) => qc.invalidateQueries({ queryKey: KEYS.topics(vars.subjectId) }),
+  })
+}
+
+export function useCreateObjective() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: { subjectId: number; title: string }) =>
+      api.post<Objective>('/objectives', data).then(r => r.data),
+    onSuccess: (_, vars) => qc.invalidateQueries({ queryKey: KEYS.objectives(vars.subjectId) }),
   })
 }
 

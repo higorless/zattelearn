@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import * as ctrl from '../controllers/subjectsController';
+import { authenticate } from '../middleware/authenticate';
 
 const router = Router();
+router.use(authenticate);
 
 router.get('/', ctrl.index);
 router.get('/:id', ctrl.show);

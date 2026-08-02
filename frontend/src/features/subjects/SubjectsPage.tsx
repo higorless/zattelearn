@@ -41,6 +41,7 @@ function SubjectRow({ subject }: { subject: Subject }) {
     acc[o.id] = allCards.filter(c => c.objectiveId === o.id)
     return acc
   }, {})
+  const orphanCards = allCards.filter(c => c.subjectId === subject.id && !c.objectiveId)
 
   const doneCount = objectives.filter(o => o.status === 'done').length
   const progress = objectives.length > 0 ? (doneCount / objectives.length) * 100 : 0
@@ -162,6 +163,33 @@ function SubjectRow({ subject }: { subject: Subject }) {
                                     )
                                   })}
                                 </ul>
+                              )}
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    </div>
+                  )}
+
+                  {orphanCards.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+                        Cards sem objetivo
+                      </p>
+                      <ul className="space-y-1">
+                        {orphanCards.map(card => {
+                          const col = columns.find(c => c.id === card.columnId)
+                          return (
+                            <li key={card.id} className="flex items-center gap-2 text-[11px] text-muted-foreground/50">
+                              <span
+                                className="h-1 w-1 rounded-full shrink-0 opacity-50"
+                                style={{ backgroundColor: subject.color }}
+                              />
+                              <span className="flex-1 truncate font-body">{card.title}</span>
+                              {col && (
+                                <Badge variant="secondary" className="text-[10px] h-3.5 px-1 shrink-0">
+                                  {col.title}
+                                </Badge>
                               )}
                             </li>
                           )

@@ -1,14 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import db from '../db/knex';
 import { createGoalSchema, updateGoalSchema } from '../schemas/goals';
+import { AuthRequest } from '../middleware/authenticate';
 
-// Returns goals with computed studied_seconds and joined subject/topic names
 async function withProgress(query: ReturnType<typeof db>) {
   const rows = await query;
   const goalIds = rows.map((r: { id: number }) => r.id);
   if (goalIds.length === 0) return rows;
 
-  // Sum study session durations for each goal's subject (and topic if set)
   const progress = await db('study_sessions as ss')
     .join('kanban_cards as kc', 'kc.id', 'ss.card_id')
     .join('goals as g', function () {
@@ -37,17 +36,13 @@ async function withProgress(query: ReturnType<typeof db>) {
 
 export async function index(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    const userId = (req as AuthRequest).userId;
     const query = db('goals as g')
       .leftJoin('subjects as s', 's.id', 'g.subject_id')
       .leftJoin('topics as t', 't.id', 'g.topic_id')
-      .select(
-        'g.*',
-        's.name as subject_name',
-        's.color as subject_color',
-        't.name as topic_name',
-      )
+      .where('g.user_id', userId)
+      .select('g.*', 's.name as subject_name', 's.color as subject_color', 't.name as topic_name')
       .orderBy('g.created_at', 'desc');
-
     res.json(await withProgress(query));
   } catch (err) {
     next(err);
@@ -56,17 +51,13 @@ export async function index(req: Request, res: Response, next: NextFunction): Pr
 
 export async function show(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    const userId = (req as AuthRequest).userId;
     const query = db('goals as g')
       .leftJoin('subjects as s', 's.id', 'g.subject_id')
       .leftJoin('topics as t', 't.id', 'g.topic_id')
-      .select(
-        'g.*',
-        's.name as subject_name',
-        's.color as subject_color',
-        't.name as topic_name',
-      )
-      .where('g.id', req.params.id);
-
+      .where('g.id', req.params.id)
+      .where('g.user_id', userId)
+      .select('g.*', 's.name as subject_name', 's.color as subject_color', 't.name as topic_name');
     const results = await withProgress(query);
     if (!results.length) {
       res.status(404).json({ error: 'Goal not found' });
@@ -80,8 +71,9 @@ export async function show(req: Request, res: Response, next: NextFunction): Pro
 
 export async function create(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    const userId = (req as AuthRequest).userId;
     const data = createGoalSchema.parse(req.body);
-    const [goal] = await db('goals').insert(data).returning('*');
+    const [goal] = await db('goals').insert({ ...data, user_id: userId }).returning('*');
     res.status(201).json({ ...goal, studied_seconds: 0 });
   } catch (err) {
     next(err);
@@ -90,8 +82,9 @@ export async function create(req: Request, res: Response, next: NextFunction): P
 
 export async function update(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    const userId = (req as AuthRequest).userId;
     const data = updateGoalSchema.parse(req.body);
-    const [goal] = await db('goals').where({ id: req.params.id }).update(data).returning('*');
+    const [goal] = await db('goals').where({ id: req.params.id, user_id: userId }).update(data).returning('*');
     if (!goal) {
       res.status(404).json({ error: 'Goal not found' });
       return;
@@ -104,7 +97,8 @@ export async function update(req: Request, res: Response, next: NextFunction): P
 
 export async function destroy(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const count = await db('goals').where({ id: req.params.id }).delete();
+    const userId = (req as AuthRequest).userId;
+    const count = await db('goals').where({ id: req.params.id, user_id: userId }).delete();
     if (!count) {
       res.status(404).json({ error: 'Goal not found' });
       return;
