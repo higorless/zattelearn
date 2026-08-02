@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Clock, Play, Pause, Square, RefreshCw, ArrowRight, PenLine,
+  Clock, Play, Pause, Square, RefreshCw, ArrowRight, PenLine, X,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
@@ -137,6 +137,7 @@ export function StudyPanel() {
       })
       dispatch(endSession())
       qc.invalidateQueries({ queryKey: ['study-sessions', 'today'] })
+      qc.invalidateQueries({ queryKey: ['goals'] })
       toast.success('Sessão encerrada')
     } catch {
       toast.error('Erro ao encerrar sessão — tente novamente')
@@ -171,6 +172,7 @@ export function StudyPanel() {
     const cardSubject = activeCard?.subject
     dispatch(endSession())
     qc.invalidateQueries({ queryKey: ['study-sessions', 'today'] })
+    qc.invalidateQueries({ queryKey: ['goals'] })
 
     // Step 2: save note — non-blocking, session is already done
     if (noteContent.trim()) {
@@ -534,7 +536,7 @@ export function StudyPanel() {
 
                   {/* Recent zettel notes */}
                   {recentNotes.length > 0 && (
-                    <div className="px-4 py-4 flex-1 min-h-0 overflow-hidden">
+                    <div className="px-4 py-4 flex-1 min-h-0 overflow-y-auto">
                       <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-3">
                         Anotações recentes
                       </p>

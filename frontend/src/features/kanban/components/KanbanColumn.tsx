@@ -27,12 +27,12 @@ export function KanbanColumnView({ column, onStartSession, onCardClick }: Props)
   return (
     <motion.div
       layout
-      className="flex w-72 shrink-0 flex-col gap-3"
+      className="flex w-72 shrink-0 flex-col h-full overflow-hidden"
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.2 }}
     >
-      <div className="flex items-center gap-2 bg-muted px-3 py-2 border border-border">
+      <div className="flex items-center gap-2 bg-muted px-3 py-2 border border-border shrink-0">
         <span className="text-xs font-semibold tracking-tight flex-1">{column.title}</span>
         <Badge variant="secondary" className="text-xs tabular-nums font-semibold">{column.cards.length}</Badge>
         <button
@@ -47,8 +47,8 @@ export function KanbanColumnView({ column, onStartSession, onCardClick }: Props)
       <div
         ref={setNodeRef}
         className={cn(
-          'flex flex-col gap-3 min-h-[4rem] transition-colors',
-          isOver && 'bg-primary/5 ring-2 ring-primary/20 ring-dashed p-1',
+          'flex flex-col gap-3 flex-1 min-h-0 overflow-y-auto mt-3 pb-4 transition-colors',
+          isOver && 'bg-primary/5 ring-2 ring-primary/20 ring-dashed px-1',
         )}
       >
         <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>

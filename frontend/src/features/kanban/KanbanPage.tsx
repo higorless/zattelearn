@@ -3,6 +3,7 @@ import {
   DndContext,
   DragOverlay,
   PointerSensor,
+  closestCenter,
   useSensor,
   useSensors,
   type DragStartEvent,
@@ -238,6 +239,7 @@ export function KanbanPage() {
 
       <DndContext
         sensors={sensors}
+        collisionDetection={closestCenter}
         onDragStart={onDragStart}
         onDragOver={onDragOver}
         onDragEnd={onDragEnd}
