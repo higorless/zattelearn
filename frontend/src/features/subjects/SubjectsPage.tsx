@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useSubjects, useTopics, useObjectives, useUpdateObjective, useCreateTopic, useCreateObjective } from '@/services/subjects'
+import { useSubjects, useTopics, useObjectives, useUpdateObjective, useCreateTopic, useCreateObjective, useDeleteSubject } from '@/services/subjects'
 import { useKanbanColumns } from '@/services/kanban'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { BookOpen, Check, ChevronRight, Loader2, Plus, Target, X } from 'lucide-react'
+import { BookOpen, Check, ChevronRight, Loader2, Plus, Target, Trash2, X } from 'lucide-react'
 import type { Objective, Subject } from '@/types'
 import { SubjectCreateDrawer } from './components/SubjectCreateDrawer'
 import { cn } from '@/lib/utils'
@@ -72,9 +72,19 @@ function SubjectRow({ subject }: { subject: Subject }) {
   const updateObjective = useUpdateObjective()
   const createTopic = useCreateTopic()
   const createObjective = useCreateObjective()
+  const deleteSubject = useDeleteSubject()
 
   const [addingTopic, setAddingTopic] = useState(false)
   const [addingObjective, setAddingObjective] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
+  async function handleDelete() {
+    try {
+      await deleteSubject.mutateAsync(subject.id)
+    } catch {
+      toast.error('Erro ao excluir matéria')
+    }
+  }
 
   async function handleCreateTopic(name: string) {
     try {
@@ -310,6 +320,35 @@ function SubjectRow({ subject }: { subject: Subject }) {
                         onCancel={() => setAddingTopic(false)}
                         isPending={createTopic.isPending}
                       />
+                    )}
+                  </div>
+
+                  <div className="pt-2 border-t border-border/20 flex items-center justify-end">
+                    {confirmDelete ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-muted-foreground/60">Confirmar exclusão?</span>
+                        <button
+                          onClick={handleDelete}
+                          disabled={deleteSubject.isPending}
+                          className="text-[11px] font-semibold text-destructive hover:text-destructive/80 transition-colors disabled:opacity-50"
+                        >
+                          {deleteSubject.isPending ? 'Excluindo...' : 'Excluir'}
+                        </button>
+                        <button
+                          onClick={() => setConfirmDelete(false)}
+                          className="text-[11px] text-muted-foreground/50 hover:text-foreground transition-colors"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={e => { e.stopPropagation(); setConfirmDelete(true) }}
+                        className="flex items-center gap-1 text-[11px] text-muted-foreground/35 hover:text-destructive transition-colors"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                        Excluir matéria
+                      </button>
                     )}
                   </div>
 

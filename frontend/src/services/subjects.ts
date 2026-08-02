@@ -58,6 +58,14 @@ export function useCreateObjective() {
   })
 }
 
+export function useDeleteSubject() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => api.delete(`/subjects/${id}`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.subjects }),
+  })
+}
+
 export function useUpdateObjective() {
   const qc = useQueryClient()
   return useMutation({
