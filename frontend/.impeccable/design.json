@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-26T00:00:00Z",
+  "title": "Design System: ZetteLearn",
+  "extensions": {
+    "colorMeta": {
+      "canvas":         { "role": "neutral",   "displayName": "Terminal Black",    "canonical": "oklch(0.145 0 0)", "tonalRamp": ["oklch(0.08 0 0)", "oklch(0.12 0 0)", "oklch(0.145 0 0)", "oklch(0.18 0 0)", "oklch(0.22 0 0)", "oklch(0.35 0 0)", "oklch(0.60 0 0)", "oklch(0.90 0 0)"] },
+      "surface":        { "role": "neutral",   "displayName": "Graphite",          "canonical": "oklch(0.205 0 0)", "tonalRamp": ["oklch(0.08 0 0)", "oklch(0.14 0 0)", "oklch(0.205 0 0)", "oklch(0.26 0 0)", "oklch(0.32 0 0)", "oklch(0.45 0 0)", "oklch(0.65 0 0)", "oklch(0.92 0 0)"] },
+      "surface-raised": { "role": "neutral",   "displayName": "Studio Gray",       "canonical": "oklch(0.269 0 0)", "tonalRamp": ["oklch(0.09 0 0)", "oklch(0.16 0 0)", "oklch(0.22 0 0)", "oklch(0.269 0 0)", "oklch(0.34 0 0)", "oklch(0.50 0 0)", "oklch(0.70 0 0)", "oklch(0.93 0 0)"] },
+      "ink":            { "role": "neutral",   "displayName": "Pale Ink",          "canonical": "oklch(0.985 0 0)", "tonalRamp": ["oklch(0.20 0 0)", "oklch(0.40 0 0)", "oklch(0.55 0 0)", "oklch(0.70 0 0)", "oklch(0.82 0 0)", "oklch(0.922 0 0)", "oklch(0.97 0 0)", "oklch(0.985 0 0)"] },
+      "ink-secondary":  { "role": "neutral",   "displayName": "Chalk",             "canonical": "oklch(0.708 0 0)", "tonalRamp": ["oklch(0.20 0 0)", "oklch(0.35 0 0)", "oklch(0.50 0 0)", "oklch(0.60 0 0)", "oklch(0.708 0 0)", "oklch(0.82 0 0)", "oklch(0.92 0 0)", "oklch(0.98 0 0)"] },
+      "ink-tertiary":   { "role": "neutral",   "displayName": "Low Signal",        "canonical": "oklch(0.556 0 0)", "tonalRamp": ["oklch(0.18 0 0)", "oklch(0.30 0 0)", "oklch(0.42 0 0)", "oklch(0.556 0 0)", "oklch(0.65 0 0)", "oklch(0.76 0 0)", "oklch(0.88 0 0)", "oklch(0.97 0 0)"] },
+      "border-subtle":  { "role": "neutral",   "displayName": "Ghost Wire",        "canonical": "oklch(1 0 0 / 10%)", "tonalRamp": ["oklch(1 0 0 / 4%)", "oklch(1 0 0 / 6%)", "oklch(1 0 0 / 10%)", "oklch(1 0 0 / 15%)", "oklch(1 0 0 / 20%)", "oklch(1 0 0 / 30%)", "oklch(1 0 0 / 45%)", "oklch(1 0 0 / 60%)"] },
+      "border-strong":  { "role": "neutral",   "displayName": "Ghost Wire Strong", "canonical": "oklch(1 0 0 / 15%)", "tonalRamp": ["oklch(1 0 0 / 6%)", "oklch(1 0 0 / 10%)", "oklch(1 0 0 / 15%)", "oklch(1 0 0 / 22%)", "oklch(1 0 0 / 30%)", "oklch(1 0 0 / 40%)", "oklch(1 0 0 / 55%)", "oklch(1 0 0 / 70%)"] },
+      "nav-accent":     { "role": "primary",   "displayName": "Nav Indigo",        "canonical": "oklch(0.488 0.243 264.376)", "tonalRamp": ["oklch(0.22 0.18 264)", "oklch(0.30 0.20 264)", "oklch(0.38 0.22 264)", "oklch(0.488 0.243 264)", "oklch(0.58 0.22 264)", "oklch(0.68 0.18 264)", "oklch(0.78 0.14 264)", "oklch(0.90 0.06 264)"] },
+      "error":          { "role": "secondary", "displayName": "Alert Red",         "canonical": "oklch(0.704 0.191 22.216)", "tonalRamp": ["oklch(0.25 0.12 27)", "oklch(0.35 0.16 27)", "oklch(0.45 0.18 27)", "oklch(0.577 0.245 27)", "oklch(0.704 0.191 22)", "oklch(0.79 0.15 27)", "oklch(0.87 0.10 27)", "oklch(0.95 0.04 27)"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Page-level section headings. One per view, always paired with a Lucide icon at 20px." },
+      "title":   { "displayName": "Title",   "purpose": "Card titles, column headers, list item primaries." },
+      "body":    { "displayName": "Body",    "purpose": "Descriptions, note content, card secondary text. Line-clamped at 2–4 lines in list views." },
+      "label":   { "displayName": "Label",   "purpose": "Badges, metadata chips, section caps, helper text. Frequently uppercased with tracking-wide." }
+    },
+    "shadows": [
+      { "name": "drag-elevation",  "value": "0 25px 50px -12px rgba(0,0,0,0.5)", "purpose": "Kanban and calendar cards during active drag only. Signals the card has left the plane." },
+      { "name": "card-hover",      "value": "0 4px 16px rgba(0,0,0,0.25)",        "purpose": "Subject cards on hover — the one exception to the flat-at-rest rule, used only on explicitly clickable card containers." }
+    ],
+    "motion": [
+      { "name": "page-enter",     "value": "opacity 0→1, y 6→0, duration 180ms",                         "purpose": "Route-level page transition on enter." },
+      { "name": "page-exit",      "value": "opacity 1→0, y 0→-6, duration 180ms",                        "purpose": "Route-level page transition on exit." },
+      { "name": "card-enter",     "value": "opacity 0→1, y 8→0, scale 0.96→1, duration 150ms",           "purpose": "Kanban and calendar card mount animation." },
+      { "name": "card-exit",      "value": "opacity 1→0, scale 1→0.95, duration 150ms",                  "purpose": "Card unmount / drag-end animation." },
+      { "name": "sidebar-width",  "value": "width 56↔224px, duration 200ms, easeInOut",                  "purpose": "Sidebar expand/collapse." },
+      { "name": "nav-indicator",  "value": "layoutId shared element morph, duration 200ms",              "purpose": "Active nav item indicator morphs between routes as a shared layout animation." },
+      { "name": "label-slide",    "value": "opacity 0→1, x -4→0 / opacity 1→0, duration 120–150ms",     "purpose": "Sidebar label text enters/exits on expand/collapse." },
+      { "name": "drag-drop",      "value": "duration 180ms, cubic-bezier(0.18, 0.67, 0.6, 1.22)",        "purpose": "DragOverlay drop animation — slight overshoot for tactile snap." }
+    ],
+    "breakpoints": [
+      { "name": "sm",  "value": "640px",  "note": "Grid goes 1→2 columns for cards (Subjects, Zettelkasten)" },
+      { "name": "lg",  "value": "1024px", "note": "Grid goes 2→3 columns for cards" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-default",
+      "description": "Default action button. Near-white fill on dark canvas.",
+      "html": "<button class=\"ds-btn-primary\">Confirmar</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; height: 32px; padding: 0 10px; background: oklch(0.985 0 0); color: oklch(0.145 0 0); font-family: 'Geist Variable', system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; border: 1px solid transparent; border-radius: 0.625rem; cursor: pointer; transition: background 150ms ease; white-space: nowrap; } .ds-btn-primary:hover { background: oklch(0.922 0 0); } .ds-btn-primary:focus-visible { outline: none; border-color: oklch(0.556 0 0); box-shadow: 0 0 0 3px oklch(0.556 0 0 / 50%); } .ds-btn-primary:disabled { opacity: 0.5; pointer-events: none; } .ds-btn-primary:active { transform: translateY(1px); }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Transparent resting state; used for sidebar nav items, icon actions, and inline controls.",
+      "html": "<button class=\"ds-btn-ghost\">← Voltar</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; height: 32px; padding: 0 10px; background: transparent; color: oklch(0.985 0 0); font-family: 'Geist Variable', system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; border: 1px solid transparent; border-radius: 0.625rem; cursor: pointer; transition: background 150ms ease; gap: 6px; } .ds-btn-ghost:hover { background: oklch(0.269 0 0); } .ds-btn-ghost:focus-visible { outline: none; border-color: oklch(0.556 0 0); box-shadow: 0 0 0 3px oklch(0.556 0 0 / 50%); } .ds-btn-ghost:disabled { opacity: 0.5; pointer-events: none; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Used for week navigation controls and secondary bordered actions.",
+      "html": "<button class=\"ds-btn-outline\">Hoje</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; height: 28px; padding: 0 10px; background: oklch(0.205 0 0 / 30%); color: oklch(0.985 0 0); font-family: 'Geist Variable', system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; border: 1px solid oklch(1 0 0 / 15%); border-radius: 0.625rem; cursor: pointer; transition: background 150ms ease; } .ds-btn-outline:hover { background: oklch(0.269 0 0 / 50%); } .ds-btn-outline:focus-visible { outline: none; box-shadow: 0 0 0 3px oklch(0.556 0 0 / 50%); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "The primary content container. Graphite surface, ring outline, 14px corners.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-header\">Título da nota</div><div class=\"ds-card-body\">Conteúdo ou descrição aqui, podendo ter até 4 linhas de texto antes de ser cortado.</div></div>",
+      "css": ".ds-card { background: oklch(0.205 0 0); color: oklch(0.985 0 0); border-radius: 0.875rem; box-shadow: 0 0 0 1px oklch(1 0 0 / 10%); padding: 16px; font-family: 'Geist Variable', system-ui, sans-serif; display: flex; flex-direction: column; gap: 8px; overflow: hidden; transition: box-shadow 150ms ease; } .ds-card:hover { box-shadow: 0 0 0 1px oklch(1 0 0 / 15%); } .ds-card-header { font-size: 1rem; font-weight: 500; line-height: 1.4; } .ds-card-body { font-size: 0.875rem; color: oklch(0.708 0 0); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }"
+    },
+    {
+      "name": "Badge — Secondary",
+      "kind": "chip",
+      "refersTo": "badge-secondary",
+      "description": "Studio Gray pill for card counts, topic labels, and categorical meta.",
+      "html": "<span class=\"ds-badge-secondary\">Algoritmos</span>",
+      "css": ".ds-badge-secondary { display: inline-flex; align-items: center; padding: 2px 8px; background: oklch(0.269 0 0); color: oklch(0.985 0 0); font-family: 'Geist Variable', system-ui, sans-serif; font-size: 0.75rem; font-weight: 500; line-height: 1.33; letter-spacing: 0.02em; border-radius: 9999px; white-space: nowrap; }"
+    },
+    {
+      "name": "Badge — Outline",
+      "kind": "chip",
+      "refersTo": "badge-outline",
+      "description": "Transparent with Ghost Wire border. Used for status labels (Pendente, Em progresso, Concluído).",
+      "html": "<span class=\"ds-badge-outline\">Em progresso</span>",
+      "css": ".ds-badge-outline { display: inline-flex; align-items: center; padding: 2px 8px; background: transparent; color: oklch(0.708 0 0); border: 1px solid oklch(1 0 0 / 15%); font-family: 'Geist Variable', system-ui, sans-serif; font-size: 0.75rem; font-weight: 500; line-height: 1.33; letter-spacing: 0.02em; border-radius: 9999px; white-space: nowrap; }"
+    },
+    {
+      "name": "Sidebar Nav Item",
+      "kind": "nav",
+      "description": "Ghost button with shared-layout active indicator. Collapses to icon-only at 56px sidebar width.",
+      "html": "<nav class=\"ds-sidebar\"><a class=\"ds-nav-item ds-nav-item--active\" href=\"#\"><svg class=\"ds-nav-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg><span class=\"ds-nav-label\">Kanban</span></a><a class=\"ds-nav-item\" href=\"#\"><svg class=\"ds-nav-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><line x1=\"16\" y1=\"2\" x2=\"16\" y2=\"6\"/><line x1=\"8\" y1=\"2\" x2=\"8\" y2=\"6\"/><line x1=\"3\" y1=\"10\" x2=\"21\" y2=\"10\"/></svg><span class=\"ds-nav-label\">Semana</span></a></nav>",
+      "css": ".ds-sidebar { display: flex; flex-direction: column; gap: 4px; padding: 8px; } .ds-nav-item { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; color: oklch(0.985 0 0); font-family: 'Geist Variable', system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; border-radius: 0.625rem; cursor: pointer; text-decoration: none; transition: background 150ms ease; white-space: nowrap; } .ds-nav-item:hover { background: oklch(0.269 0 0); } .ds-nav-item--active { background: oklch(0.269 0 0); } .ds-nav-icon { width: 16px; height: 16px; flex-shrink: 0; } .ds-nav-label { white-space: nowrap; overflow: hidden; }"
+    },
+    {
+      "name": "Kanban Card",
+      "kind": "custom",
+      "description": "Signature component. Card with 3px colored left-border (subject accent), grip handle, title, optional description, and subject/topic badges. Hidden session-start trigger on hover.",
+      "html": "<div class=\"ds-kanban-card\" style=\"--subject-color: #4f7df3\"><div class=\"ds-kanban-grip\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"9\" cy=\"5\" r=\"1\"/><circle cx=\"9\" cy=\"12\" r=\"1\"/><circle cx=\"9\" cy=\"19\" r=\"1\"/><circle cx=\"15\" cy=\"5\" r=\"1\"/><circle cx=\"15\" cy=\"12\" r=\"1\"/><circle cx=\"15\" cy=\"19\" r=\"1\"/></svg></div><div class=\"ds-kanban-body\"><p class=\"ds-kanban-title\">Aula 12 — Closures e escopo</p><p class=\"ds-kanban-desc\">Entender como closures funcionam em JavaScript e como usar corretamente.</p><div class=\"ds-kanban-tags\"><span class=\"ds-kanban-subject-badge\">JavaScript</span><span class=\"ds-badge-secondary\">Funções</span></div></div></div>",
+      "css": ".ds-kanban-card { display: flex; gap: 8px; align-items: flex-start; background: oklch(0.205 0 0); border-left: 3px solid var(--subject-color, oklch(0.556 0 0)); border-radius: 0.875rem; box-shadow: 0 0 0 1px oklch(1 0 0 / 10%); padding: 12px; font-family: 'Geist Variable', system-ui, sans-serif; cursor: default; transition: box-shadow 150ms ease; } .ds-kanban-grip { color: oklch(0.708 0 0 / 40%); cursor: grab; flex-shrink: 0; margin-top: 2px; transition: color 150ms ease; } .ds-kanban-grip svg { width: 16px; height: 16px; } .ds-kanban-grip:hover { color: oklch(0.708 0 0); } .ds-kanban-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; } .ds-kanban-title { font-size: 0.875rem; font-weight: 500; line-height: 1.4; color: oklch(0.985 0 0); } .ds-kanban-desc { font-size: 0.75rem; color: oklch(0.708 0 0); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; } .ds-kanban-tags { display: flex; flex-wrap: wrap; gap: 4px; } .ds-kanban-subject-badge { display: inline-flex; align-items: center; padding: 2px 8px; background: transparent; color: var(--subject-color); border: 1px solid var(--subject-color); font-size: 0.75rem; font-weight: 500; border-radius: 9999px; } .ds-badge-secondary { display: inline-flex; align-items: center; padding: 2px 8px; background: oklch(0.269 0 0); color: oklch(0.985 0 0); font-size: 0.75rem; font-weight: 500; border-radius: 9999px; }"
+    },
+    {
+      "name": "Kanban Column Header",
+      "kind": "custom",
+      "description": "Frosted muted header bar. Shows column title and card count badge.",
+      "html": "<div class=\"ds-column-header\"><span class=\"ds-column-title\">Em progresso</span><span class=\"ds-badge-secondary\">4</span></div>",
+      "css": ".ds-column-header { display: flex; align-items: center; gap: 8px; background: oklch(0.269 0 0 / 60%); border: 1px solid transparent; border-radius: 0.625rem; padding: 10px 12px; } .ds-column-title { font-family: 'Geist Variable', system-ui, sans-serif; font-size: 0.875rem; font-weight: 600; color: oklch(0.985 0 0); flex: 1; } .ds-badge-secondary { display: inline-flex; align-items: center; padding: 2px 8px; background: oklch(0.269 0 0); color: oklch(0.985 0 0); font-family: 'Geist Variable', system-ui, sans-serif; font-size: 0.75rem; font-weight: 500; border-radius: 9999px; font-variant-numeric: tabular-nums; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Focused Terminal",
+    "overview": "ZetteLearn's visual language is built on a single principle: the interface should disappear into the work. Inspired by Vercel's monochromatic design system and the precision of a well-configured code editor, the aesthetic is dark-first, achromatic, and resolved. Geist Variable — Vercel's own typeface — ties the two systems together structurally. Every surface, spacing decision, and color choice points the same direction: get out of the way, let the user study.\n\nThe palette is pure achromatic. No warm ink, no cool blue-gray — just luminance steps between canvas and sky. Color enters the system only through two named exceptions: the subject accent (a per-subject configurable hex applied to card left-borders and badges) and the navigation active indicator (a precise blue-purple used exclusively on the active sidebar item in dark mode). Everything else is gray-scale. This scarcity is the system's sharpest feature.\n\nThe spatial rhythm is generous and task-oriented. The sidebar collapses to icon-only (56px) and expands to label width (224px); the content area takes the remaining viewport. Framer Motion handles transitions — layout animations, page crossfades, nav indicator morphs — but never decoratively. Motion communicates state changes; it doesn't perform.",
+    "keyCharacteristics": [
+      "Dark mode is the primary mode; light mode exists but dark is the designed experience",
+      "Fully achromatic except for subject-color accents and the nav active indicator",
+      "Tonal layering only — no box-shadows at rest; depth comes from luminance steps between surface levels",
+      "Geist Variable as the single unified typeface across all roles",
+      "Motion is functional: layout, entry/exit, state transitions — never idle"
+    ],
+    "rules": [
+      { "name": "The Subject Accent Rule", "body": "Subject colors are user-configured hex values assigned per-course. They appear as a 3px left border on kanban cards and calendar entries, and as badge border/text color. They are always inline-styled — never part of the design token system.", "section": "colors" },
+      { "name": "The One Chromatic Rule", "body": "Aside from subject accents, only one hued token exists: nav-accent (Nav Indigo). It lives exclusively on the sidebar active indicator in dark mode. Any new use of color must first justify why it cannot be expressed as a neutral.", "section": "colors" },
+      { "name": "The Single Family Rule", "body": "Geist Variable is the only typeface in the system. Do not introduce a serif, a display face, or a separate monospace — including for code snippets inside notes. Weight variation (400/500/600) and size variation carry all hierarchy.", "section": "typography" },
+      { "name": "The Tonal Stack Rule", "body": "Do not use box-shadow on elements at rest. If a surface needs to feel elevated, promote it one step up the luminance scale (surface → surface-raised) or add a ring-1 ring-foreground/10 outline. Shadows are reserved for drag state only.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use three tonal layers (canvas → surface → surface-raised) to express depth without shadow.",
+      "Do use ring-1 ring-foreground/10 on cards instead of a hard border.",
+      "Do reserve shadow-2xl for drag states only — it must always signal active elevation, never decoration.",
+      "Do apply the subject accent color exclusively via inline style (borderColor, color) — never through a CSS token or Tailwind class.",
+      "Do use Framer Motion layoutId for the nav active indicator so it morphs smoothly between items.",
+      "Do let badge pills (rounded-full) carry categorical data (subjects, topics, status, counts); body text carries descriptive content.",
+      "Do keep label text at 0.75rem / 500 / +0.02em tracking — never use bold labels; use tracking and weight, not size, for small-scale hierarchy."
+    ],
+    "donts": [
+      "Don't introduce a second typeface — not for code, headings, or display use.",
+      "Don't add a hued color to the token system without routing through The One Chromatic Rule. Subject accents are user data, not tokens.",
+      "Don't use box-shadow on elements at rest. The system communicates depth through luminance, not shadow.",
+      "Don't add decorative or idle animations. Motion in this system is functional — it maps to state transitions.",
+      "Don't use the nav-accent (Nav Indigo) for anything other than the sidebar active indicator. Its singularity is its signal.",
+      "Don't introduce warm neutrals, sepia tones, or off-white backgrounds. The neutrals are achromatic — zero chroma on all non-accent tokens."
+    ]
+  }
+}
