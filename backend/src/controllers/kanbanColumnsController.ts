@@ -1,15 +1,23 @@
 import { Request, Response, NextFunction } from 'express';
 import db from '../db/knex';
 import { createKanbanColumnSchema, updateKanbanColumnSchema } from '../schemas/kanbanColumns';
+import { AuthRequest } from '../middleware/authenticate';
 
-export async function index(_req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function index(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const columns = await db('kanban_columns').select('*').orderBy('position', 'asc');
+    const userId = (req as AuthRequest).userId;
+
+    const columns = await db('kanban_columns')
+      .select('*')
+      .where({ user_id: userId })
+      .orderBy('position', 'asc');
 
     const cards = await db('kanban_cards as c')
+      .join('kanban_columns as col', 'c.column_id', 'col.id')
       .leftJoin('subjects as s', 'c.subject_id', 's.id')
       .leftJoin('topics as t', 'c.topic_id', 't.id')
       .leftJoin('objectives as o', 'c.objective_id', 'o.id')
+      .where('col.user_id', userId)
       .select(
         'c.*',
         db.raw(`CASE WHEN s.id IS NOT NULL THEN json_build_object('id', s.id, 'name', s.name, 'color', s.color) ELSE NULL END as subject`),
@@ -24,12 +32,7 @@ export async function index(_req: Request, res: Response, next: NextFunction): P
       return acc;
     }, {});
 
-    const result = columns.map(col => ({
-      ...col,
-      cards: cardsByColumn[col.id] ?? [],
-    }));
-
-    res.json(result);
+    res.json(columns.map(col => ({ ...col, cards: cardsByColumn[col.id] ?? [] })));
   } catch (err) {
     next(err);
   }
@@ -37,7 +40,8 @@ export async function index(_req: Request, res: Response, next: NextFunction): P
 
 export async function show(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const column = await db('kanban_columns').where({ id: req.params.id }).first();
+    const userId = (req as AuthRequest).userId;
+    const column = await db('kanban_columns').where({ id: req.params.id, user_id: userId }).first();
     if (!column) {
       res.status(404).json({ error: 'Column not found' });
       return;
@@ -50,14 +54,15 @@ export async function show(req: Request, res: Response, next: NextFunction): Pro
 
 export async function create(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    const userId = (req as AuthRequest).userId;
     const data = createKanbanColumnSchema.parse(req.body);
 
     if (data.position === undefined) {
-      const [{ max }] = await db('kanban_columns').max('position as max');
+      const [{ max }] = await db('kanban_columns').where({ user_id: userId }).max('position as max');
       data.position = (max ?? -1) + 1;
     }
 
-    const [column] = await db('kanban_columns').insert(data).returning('*');
+    const [column] = await db('kanban_columns').insert({ ...data, user_id: userId }).returning('*');
     res.status(201).json(column);
   } catch (err) {
     next(err);
@@ -66,8 +71,12 @@ export async function create(req: Request, res: Response, next: NextFunction): P
 
 export async function update(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    const userId = (req as AuthRequest).userId;
     const data = updateKanbanColumnSchema.parse(req.body);
-    const [column] = await db('kanban_columns').where({ id: req.params.id }).update(data).returning('*');
+    const [column] = await db('kanban_columns')
+      .where({ id: req.params.id, user_id: userId })
+      .update(data)
+      .returning('*');
     if (!column) {
       res.status(404).json({ error: 'Column not found' });
       return;
@@ -80,7 +89,8 @@ export async function update(req: Request, res: Response, next: NextFunction): P
 
 export async function destroy(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const count = await db('kanban_columns').where({ id: req.params.id }).delete();
+    const userId = (req as AuthRequest).userId;
+    const count = await db('kanban_columns').where({ id: req.params.id, user_id: userId }).delete();
     if (!count) {
       res.status(404).json({ error: 'Column not found' });
       return;

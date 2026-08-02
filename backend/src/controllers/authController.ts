@@ -43,6 +43,12 @@ export async function register(req: Request, res: Response, next: NextFunction):
       .insert({ name: data.name, email: data.email, password_hash })
       .returning('*');
 
+    await db('kanban_columns').insert([
+      { title: 'A Fazer', position: 0, user_id: user.id },
+      { title: 'Em Progresso', position: 1, user_id: user.id },
+      { title: 'Concluído', position: 2, user_id: user.id },
+    ]);
+
     res.status(201).json({ token: signToken(user.id), user: sanitize(user) });
   } catch (err) {
     next(err);

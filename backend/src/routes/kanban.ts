@@ -1,8 +1,11 @@
 import { Router } from 'express';
 import * as columnsCtrl from '../controllers/kanbanColumnsController';
 import * as cardsCtrl from '../controllers/kanbanCardsController';
+import { authenticate } from '../middleware/authenticate';
 
 const router = Router();
+
+router.use(authenticate);
 
 router.get('/columns', columnsCtrl.index);
 router.get('/columns/:id', columnsCtrl.show);
