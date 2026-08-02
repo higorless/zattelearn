@@ -25,7 +25,8 @@ const db = knex({
   },
   migrations: {
     directory: path.join(__dirname, 'migrations'),
-    extension: 'js',
+    extension: 'ts',
+    loadExtensions: ['.ts'],
   },
 });
 

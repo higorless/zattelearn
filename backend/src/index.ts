@@ -7,6 +7,16 @@ import { requestLogger } from './middleware/requestLogger';
 import logger from './utils/logger';
 import db from './db/knex';
 
+if (!process.env.DATABASE_URL && !process.env.DB_HOST) {
+  console.error('ERROR: DATABASE_URL or DB_HOST must be set')
+  process.exit(1)
+}
+
+if (!process.env.JWT_SECRET) {
+  console.error('ERROR: JWT_SECRET must be set')
+  process.exit(1)
+}
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 

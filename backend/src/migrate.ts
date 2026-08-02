@@ -1,5 +1,10 @@
 import db from './db/knex'
 
+if (!process.env.DATABASE_URL && !process.env.DB_HOST) {
+  console.error('ERROR: DATABASE_URL or DB_HOST must be set')
+  process.exit(1)
+}
+
 async function migrate() {
   console.log('Running migrations...')
   const [batch, migrations] = await db.migrate.latest()
