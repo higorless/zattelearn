@@ -1,14 +1,49 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useSubjects, useTopics, useObjectives, useUpdateObjective } from '@/services/subjects'
+import { useSubjects, useTopics, useObjectives, useUpdateObjective, useCreateTopic, useCreateObjective } from '@/services/subjects'
 import { useKanbanColumns } from '@/services/kanban'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { BookOpen, ChevronRight, Loader2, Plus, Target } from 'lucide-react'
+import { BookOpen, Check, ChevronRight, Loader2, Plus, Target, X } from 'lucide-react'
 import type { Objective, Subject } from '@/types'
 import { SubjectCreateDrawer } from './components/SubjectCreateDrawer'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
+
+function InlineCreate({ placeholder, onConfirm, onCancel, isPending }: {
+  placeholder: string
+  onConfirm: (value: string) => void
+  onCancel: () => void
+  isPending: boolean
+}) {
+  const [value, setValue] = useState('')
+  return (
+    <div className="flex items-center gap-1.5 mt-1 animate-in fade-in slide-in-from-top-1 duration-150">
+      <input
+        value={value}
+        onChange={e => setValue(e.target.value)}
+        placeholder={placeholder}
+        autoFocus
+        onKeyDown={e => {
+          if (e.key === 'Enter' && value.trim()) onConfirm(value.trim())
+          if (e.key === 'Escape') onCancel()
+        }}
+        className="flex-1 bg-transparent text-xs text-foreground border-b border-primary/40 pb-1 outline-none placeholder:text-muted-foreground/40"
+      />
+      <button
+        onClick={() => value.trim() && onConfirm(value.trim())}
+        disabled={!value.trim() || isPending}
+        className="text-primary/70 hover:text-primary disabled:opacity-30 transition-colors"
+      >
+        {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+      </button>
+      <button onClick={onCancel} className="text-muted-foreground/50 hover:text-foreground transition-colors">
+        <X className="h-3 w-3" />
+      </button>
+    </div>
+  )
+}
 
 const STATUS_NEXT: Record<Objective['status'], Objective['status']> = {
   pending: 'in_progress',
@@ -35,6 +70,29 @@ function SubjectRow({ subject }: { subject: Subject }) {
   const { data: objectives = [], isLoading: loadingObjectives } = useObjectives(subject.id)
   const { data: columns = [] } = useKanbanColumns()
   const updateObjective = useUpdateObjective()
+  const createTopic = useCreateTopic()
+  const createObjective = useCreateObjective()
+
+  const [addingTopic, setAddingTopic] = useState(false)
+  const [addingObjective, setAddingObjective] = useState(false)
+
+  async function handleCreateTopic(name: string) {
+    try {
+      await createTopic.mutateAsync({ subjectId: subject.id, name })
+      setAddingTopic(false)
+    } catch {
+      toast.error('Erro ao criar tópico')
+    }
+  }
+
+  async function handleCreateObjective(title: string) {
+    try {
+      await createObjective.mutateAsync({ subjectId: subject.id, title })
+      setAddingObjective(false)
+    } catch {
+      toast.error('Erro ao criar objetivo')
+    }
+  }
 
   const allCards = columns.flatMap(c => c.cards)
   const cardsByObjective = objectives.reduce<Record<number, typeof allCards>>((acc, o) => {
@@ -89,33 +147,42 @@ function SubjectRow({ subject }: { subject: Subject }) {
                   <Loader2 className="h-3 w-3 animate-spin" />
                   Carregando...
                 </div>
-              ) : topics.length === 0 && objectives.length === 0 ? (
-                <div className="px-4 py-3 text-xs text-muted-foreground/40">
-                  Nenhum tópico ou objetivo cadastrado ainda.
-                </div>
               ) : (
                 <div className="px-4 py-4 space-y-5">
 
-                  {objectives.length > 0 && (
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-                          Objetivos
-                        </p>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+                        Objetivos
+                      </p>
+                      {objectives.length > 0 && (
                         <span className="text-[11px] text-muted-foreground/35 tabular-nums">
                           {doneCount}/{objectives.length}
                         </span>
-                        <div className="flex-1 h-px bg-border/30 relative">
-                          <motion.div
-                            className="absolute inset-y-0 left-0 h-px"
-                            initial={{ width: 0 }}
-                            animate={{ width: `${progress}%` }}
-                            transition={{ duration: 0.4, ease: 'easeOut', delay: 0.1 }}
-                            style={{ backgroundColor: subject.color }}
-                          />
-                        </div>
+                      )}
+                      <div className="flex-1 h-px bg-border/30 relative">
+                        <motion.div
+                          className="absolute inset-y-0 left-0 h-px"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${progress}%` }}
+                          transition={{ duration: 0.4, ease: 'easeOut', delay: 0.1 }}
+                          style={{ backgroundColor: subject.color }}
+                        />
                       </div>
+                      <button
+                        onClick={e => { e.stopPropagation(); setAddingObjective(v => !v) }}
+                        className="text-muted-foreground/40 hover:text-muted-foreground transition-colors shrink-0"
+                        title="Novo objetivo"
+                      >
+                        <Plus className="h-3 w-3" />
+                      </button>
+                    </div>
 
+                    {objectives.length === 0 && !addingObjective && (
+                      <p className="text-xs text-muted-foreground/40">Nenhum objetivo ainda.</p>
+                    )}
+
+                    {objectives.length > 0 && (
                       <ul className="space-y-3">
                         {objectives.map(o => {
                           const linkedCards = cardsByObjective[o.id] ?? []
@@ -168,8 +235,17 @@ function SubjectRow({ subject }: { subject: Subject }) {
                           )
                         })}
                       </ul>
-                    </div>
-                  )}
+                    )}
+
+                    {addingObjective && (
+                      <InlineCreate
+                        placeholder="Título do objetivo"
+                        onConfirm={handleCreateObjective}
+                        onCancel={() => setAddingObjective(false)}
+                        isPending={createObjective.isPending}
+                      />
+                    )}
+                  </div>
 
                   {orphanCards.length > 0 && (
                     <div className="space-y-2">
@@ -198,11 +274,26 @@ function SubjectRow({ subject }: { subject: Subject }) {
                     </div>
                   )}
 
-                  {topics.length > 0 && (
-                    <div className="space-y-2">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
                       <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
                         Tópicos
                       </p>
+                      <div className="flex-1" />
+                      <button
+                        onClick={e => { e.stopPropagation(); setAddingTopic(v => !v) }}
+                        className="text-muted-foreground/40 hover:text-muted-foreground transition-colors shrink-0"
+                        title="Novo tópico"
+                      >
+                        <Plus className="h-3 w-3" />
+                      </button>
+                    </div>
+
+                    {topics.length === 0 && !addingTopic && (
+                      <p className="text-xs text-muted-foreground/40">Nenhum tópico ainda.</p>
+                    )}
+
+                    {topics.length > 0 && (
                       <div className="flex flex-wrap gap-1.5">
                         {topics.map(t => (
                           <span key={t.id} className="text-[11px] px-2 py-0.5 bg-muted border border-border/40 text-muted-foreground">
@@ -210,8 +301,17 @@ function SubjectRow({ subject }: { subject: Subject }) {
                           </span>
                         ))}
                       </div>
-                    </div>
-                  )}
+                    )}
+
+                    {addingTopic && (
+                      <InlineCreate
+                        placeholder="Nome do tópico"
+                        onConfirm={handleCreateTopic}
+                        onCancel={() => setAddingTopic(false)}
+                        isPending={createTopic.isPending}
+                      />
+                    )}
+                  </div>
 
                 </div>
               )}
