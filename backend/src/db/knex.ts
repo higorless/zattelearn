@@ -12,7 +12,7 @@ pg.types.setTypeParser(1082, (val: string) => val);
 
 const db = knex({
   client: 'pg',
-  connection: {
+  connection: process.env.DATABASE_URL ?? {
     host: process.env.DB_HOST || 'localhost',
     port: Number(process.env.DB_PORT) || 5432,
     database: process.env.DB_NAME || 'zettelearn',

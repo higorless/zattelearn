@@ -1,40 +1,19 @@
 services:
 
-  postgres:
-    image: postgres:16-alpine
-    container_name: zettelearn-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${DB_NAME:-zettelearn}
-      POSTGRES_USER: ${DB_USER:-zettelearn}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-zettelearn}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - zettelearn
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-zettelearn} -d ${DB_NAME:-zettelearn}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: zettelearn-backend
     restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
     environment:
       NODE_ENV: production
       PORT: 3001
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: ${DB_NAME:-zettelearn}
-      DB_USER: ${DB_USER:-zettelearn}
-      DB_PASSWORD: ${DB_PASSWORD:-zettelearn}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
     networks:
       - zettelearn
@@ -55,6 +34,3 @@ services:
 networks:
   zettelearn:
     driver: bridge
-
-volumes:
-  postgres_data:
