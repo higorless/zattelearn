@@ -12,7 +12,7 @@ services:
       DATABASE_URL: postgresql://postgres:${DB_PASSWORD}@postgresql-database-w8prxmb4woa34dl02tnxhbd0:5432/postgres
       JWT_SECRET: ${JWT_SECRET}
     networks:
-      - zettelearn
+      - coolify
 
   frontend:
     build:
@@ -25,8 +25,8 @@ services:
     depends_on:
       - backend
     networks:
-      - zettelearn
+      - coolify
 
 networks:
-  zettelearn:
-    driver: bridge
+  coolify:
+    external: true
