@@ -44,7 +44,18 @@ export function useDeleteCard() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: number) => api.delete(`/kanban/cards/${id}`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.columns }),
+    onMutate: async (id) => {
+      await qc.cancelQueries({ queryKey: KEYS.columns })
+      const previous = qc.getQueryData<KanbanColumn[]>(KEYS.columns)
+      qc.setQueryData<KanbanColumn[]>(KEYS.columns, old =>
+        old?.map(col => ({ ...col, cards: col.cards.filter(c => c.id !== id) })) ?? []
+      )
+      return { previous }
+    },
+    onError: (_err, _id, ctx) => {
+      if (ctx?.previous) qc.setQueryData(KEYS.columns, ctx.previous)
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: KEYS.columns }),
   })
 }
 
