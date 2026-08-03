@@ -30,6 +30,7 @@ export function StudyPage() {
   const [elapsed, setElapsed] = useState(0)
   const [isRunning, setIsRunning] = useState(false)
   const [isFinishing, setIsFinishing] = useState(false)
+  const [cancelConfirm, setCancelConfirm] = useState(false)
 
   const [noteContent, setNoteContent] = useState('')
   const [tags, setTags] = useState<string[]>([])
@@ -69,6 +70,26 @@ export function StudyPage() {
       addTag(tagInput)
     } else if (e.key === 'Backspace' && !tagInput) {
       setTags(prev => prev.slice(0, -1))
+    }
+  }
+
+  async function handleCancelSession() {
+    if (!sessionId) return
+    setIsRunning(false)
+    setIsFinishing(true)
+    try {
+      await finishSession.mutateAsync({
+        id: sessionId,
+        endedAt: new Date().toISOString(),
+        durationSeconds: 0,
+      })
+      toast.success('Sessão cancelada')
+      navigate('/kanban')
+    } catch {
+      toast.error('Erro ao cancelar — tente novamente')
+      setIsFinishing(false)
+      setIsRunning(true)
+      setCancelConfirm(false)
     }
   }
 
@@ -142,16 +163,40 @@ export function StudyPage() {
           )}
         </div>
 
-        <Button
-          size="sm"
-          variant="destructive"
-          onClick={handleFinalize}
-          disabled={isFinishing || !sessionId}
-          className="gap-1.5 shrink-0"
-        >
-          <Square className="h-3.5 w-3.5" />
-          {isFinishing ? 'Finalizando...' : 'Finalizar sessão'}
-        </Button>
+        {cancelConfirm ? (
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs text-muted-foreground/60">Cancelar sem contar?</span>
+            <Button size="sm" variant="destructive" onClick={handleCancelSession} disabled={isFinishing} className="gap-1.5">
+              Sim, cancelar
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setCancelConfirm(false)} disabled={isFinishing}>
+              Não
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setCancelConfirm(true)}
+              disabled={isFinishing || !sessionId}
+              className="gap-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+            >
+              <X className="h-3.5 w-3.5" />
+              Cancelar
+            </Button>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={handleFinalize}
+              disabled={isFinishing || !sessionId}
+              className="gap-1.5"
+            >
+              <Square className="h-3.5 w-3.5" />
+              {isFinishing ? 'Finalizando...' : 'Finalizar'}
+            </Button>
+          </div>
+        )}
       </header>
 
       {/* Timer */}

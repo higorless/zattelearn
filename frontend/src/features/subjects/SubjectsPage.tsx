@@ -5,9 +5,10 @@ import { useKanbanColumns } from '@/services/kanban'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { BookOpen, Check, ChevronRight, Loader2, Plus, Target, Trash2, X } from 'lucide-react'
+import { BookOpen, Check, ChevronRight, Loader2, Maximize2, Plus, Target, Trash2, X } from 'lucide-react'
 import type { Objective, Subject } from '@/types'
 import { SubjectCreateDrawer } from './components/SubjectCreateDrawer'
+import { SubjectDrawer } from './components/SubjectDrawer'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -63,7 +64,7 @@ const STATUS_COLOR: Record<Objective['status'], string> = {
   done: 'text-muted-foreground/35',
 }
 
-function SubjectRow({ subject }: { subject: Subject }) {
+function SubjectRow({ subject, onOpenDrawer }: { subject: Subject; onOpenDrawer: () => void }) {
   const [expanded, setExpanded] = useState(false)
 
   const { data: topics = [], isLoading: loadingTopics } = useTopics(subject.id)
@@ -323,7 +324,15 @@ function SubjectRow({ subject }: { subject: Subject }) {
                     )}
                   </div>
 
-                  <div className="pt-2 border-t border-border/20 flex items-center justify-end">
+                  <div className="pt-2 border-t border-border/20 flex items-center justify-between">
+                    <button
+                      onClick={e => { e.stopPropagation(); onOpenDrawer() }}
+                      className="flex items-center gap-1 text-[11px] text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+                    >
+                      <Maximize2 className="h-3 w-3" />
+                      Ver tudo
+                    </button>
+
                     {confirmDelete ? (
                       <div className="flex items-center gap-2">
                         <span className="text-[11px] text-muted-foreground/60">Confirmar exclusão?</span>
@@ -365,6 +374,7 @@ function SubjectRow({ subject }: { subject: Subject }) {
 export function SubjectsPage() {
   const { data: subjects = [], isLoading, isError, refetch } = useSubjects()
   const [createOpen, setCreateOpen] = useState(false)
+  const [drawerSubject, setDrawerSubject] = useState<Subject | null>(null)
 
   return (
     <div className="flex flex-1 flex-col gap-3 p-4 overflow-auto">
@@ -399,11 +409,21 @@ export function SubjectsPage() {
         </div>
       ) : (
         <div className="space-y-1.5 max-w-2xl">
-          {subjects.map(s => <SubjectRow key={s.id} subject={s} />)}
+          {subjects.map(s => (
+            <SubjectRow key={s.id} subject={s} onOpenDrawer={() => setDrawerSubject(s)} />
+          ))}
         </div>
       )}
 
       <SubjectCreateDrawer open={createOpen} onClose={() => setCreateOpen(false)} />
+
+      {drawerSubject && (
+        <SubjectDrawer
+          subject={drawerSubject}
+          open={!!drawerSubject}
+          onClose={() => setDrawerSubject(null)}
+        />
+      )}
     </div>
   )
 }

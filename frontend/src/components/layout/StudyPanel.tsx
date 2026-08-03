@@ -61,6 +61,7 @@ export function StudyPanel() {
 
   const [cardIndex, setCardIndex] = useState(0)
   const [isFinishing, setIsFinishing] = useState(false)
+  const [cancelConfirm, setCancelConfirm] = useState(false)
   const [noteContent, setNoteContent] = useState('')
   const [noteTags, setNoteTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
@@ -147,6 +148,23 @@ export function StudyPanel() {
   function handleCancelFinish() {
     setIsFinishing(false)
     dispatch(resumeSession())
+  }
+
+  async function handleCancelSession() {
+    if (!active) return
+    try {
+      await finishSessionMutation.mutateAsync({
+        id: active.id,
+        endedAt: new Date().toISOString(),
+        durationSeconds: 0,
+      })
+      dispatch(endSession())
+      qc.invalidateQueries({ queryKey: ['study-sessions', 'today'] })
+      setCancelConfirm(false)
+      toast.success('Sessão cancelada')
+    } catch {
+      toast.error('Erro ao cancelar sessão')
+    }
   }
 
   async function handleConfirmFinalize() {
@@ -375,6 +393,33 @@ export function StudyPanel() {
                       Com nota
                     </Button>
                   </div>
+
+                  {cancelConfirm ? (
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-[10px] text-muted-foreground/50">Cancelar sem contar o tempo?</span>
+                      <button
+                        onClick={handleCancelSession}
+                        disabled={isPanelBusy}
+                        className="text-[10px] font-semibold text-destructive hover:text-destructive/80 transition-colors disabled:opacity-50"
+                      >
+                        Sim
+                      </button>
+                      <button
+                        onClick={() => setCancelConfirm(false)}
+                        className="text-[10px] text-muted-foreground/50 hover:text-foreground transition-colors"
+                      >
+                        Não
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setCancelConfirm(true)}
+                      disabled={isPanelBusy}
+                      className="text-[10px] text-muted-foreground/25 hover:text-muted-foreground/60 transition-colors mt-0.5"
+                    >
+                      Cancelar sessão
+                    </button>
+                  )}
                 </div>
               </div>
             </motion.div>
