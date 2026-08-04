@@ -12,7 +12,7 @@ async function withProgress(query: ReturnType<typeof db>) {
     .join('kanban_cards as kc', 'kc.id', 'ss.card_id')
     .join('goals as g', function () {
       this.on('g.subject_id', '=', 'kc.subject_id')
-        .andOn(db.raw('(g.topic_id IS NULL OR g.topic_id = kc.topic_id)'))
+        .andOn(db.raw('g.topic_id IS NOT DISTINCT FROM kc.topic_id'))
     })
     .whereIn('g.id', goalIds)
     .whereNotNull('ss.ended_at')

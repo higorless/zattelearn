@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { X, Target, Clock, CalendarDays, BookOpen, Hash } from 'lucide-react'
+import { X, Target, Clock, CalendarDays, BookOpen, Hash, Info } from 'lucide-react'
 import {
   Drawer,
   DrawerContent,
@@ -128,17 +128,25 @@ export function GoalCreateDrawer({ open, onClose }: Props) {
           </FieldRow>
 
           {subjectId !== '' && topics.length > 0 && (
-            <FieldRow label="Tópico (opcional)" icon={<Hash className="h-3.5 w-3.5" />}>
+            <FieldRow label="Tópico" icon={<Hash className="h-3.5 w-3.5" />}>
               <select
                 value={topicId}
                 onChange={e => setTopicId(e.target.value ? Number(e.target.value) : '')}
                 className={cn(fieldBase, 'cursor-pointer')}
               >
-                <option value="">Qualquer tópico</option>
+                <option value="">Sem tópico específico</option>
                 {topics.map(t => (
                   <option key={t.id} value={t.id}>{t.name}</option>
                 ))}
               </select>
+              {topicId === '' && (
+                <div className="flex items-start gap-1.5 mt-1.5 text-[11px] text-amber-500/70">
+                  <Info className="h-3 w-3 shrink-0 mt-px" />
+                  <span>
+                    Só contará sessões de cards sem tópico. Para rastrear por tópico, selecione um acima.
+                  </span>
+                </div>
+              )}
             </FieldRow>
           )}
 

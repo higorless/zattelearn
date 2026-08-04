@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Target, Plus, Trash2, Clock, CalendarDays, CheckCircle2 } from 'lucide-react'
+import { Target, Plus, Trash2, Clock, CalendarDays, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { useGoals, useDeleteGoal } from '@/services/goals'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -22,7 +22,7 @@ function daysUntil(date: string): number {
   return Math.round((d.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
 }
 
-function GoalCard({ goal }: { goal: Goal }) {
+function GoalCard({ goal, warnNoTopic }: { goal: Goal; warnNoTopic?: boolean }) {
   const deleteGoal = useDeleteGoal()
   const studiedHours = goal.studiedSeconds / 3600
   const progress = Math.min(studiedHours / goal.targetHours, 1)
@@ -76,9 +76,14 @@ function GoalCard({ goal }: { goal: Goal }) {
               >
                 {goal.subjectName}
               </span>
-              {goal.topicName && (
+              {goal.topicName ? (
                 <span className="text-[11px] text-muted-foreground/50 border border-border/30 px-1.5 py-0.5">
                   {goal.topicName}
+                </span>
+              ) : warnNoTopic && (
+                <span className="flex items-center gap-1 text-[11px] text-amber-500/60">
+                  <AlertTriangle className="h-3 w-3" />
+                  Sem tópico — conta só cards sem categoria
                 </span>
               )}
             </div>
@@ -165,6 +170,11 @@ export function MetasPage() {
   const active = goals.filter(g => g.studiedSeconds / 3600 < g.targetHours)
   const completed = goals.filter(g => g.studiedSeconds / 3600 >= g.targetHours)
 
+  // subjects that already have at least one topic-scoped goal
+  const subjectsWithTopicGoals = new Set(
+    goals.filter(g => g.topicName).map(g => g.subjectId)
+  )
+
   return (
     <div className="flex flex-1 flex-col gap-3 p-4 overflow-auto">
       <div className="flex items-center gap-2">
@@ -220,7 +230,13 @@ export function MetasPage() {
                 </p>
               )}
               <div className="space-y-2">
-                {active.map(g => <GoalCard key={g.id} goal={g} />)}
+                {active.map(g => (
+                  <GoalCard
+                    key={g.id}
+                    goal={g}
+                    warnNoTopic={!g.topicName && subjectsWithTopicGoals.has(g.subjectId)}
+                  />
+                ))}
               </div>
             </div>
           )}
@@ -231,7 +247,13 @@ export function MetasPage() {
                 Concluídas
               </p>
               <div className="space-y-2 opacity-60">
-                {completed.map(g => <GoalCard key={g.id} goal={g} />)}
+                {completed.map(g => (
+                  <GoalCard
+                    key={g.id}
+                    goal={g}
+                    warnNoTopic={!g.topicName && subjectsWithTopicGoals.has(g.subjectId)}
+                  />
+                ))}
               </div>
             </div>
           )}
